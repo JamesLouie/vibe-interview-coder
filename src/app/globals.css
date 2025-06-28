@@ -24,3 +24,30 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Ensure Monaco Editor tooltips appear above all other elements */
+.monaco-editor .monaco-hover {
+  z-index: 9999 !important;
+}
+
+.monaco-editor .monaco-suggest-widget {
+  z-index: 9999 !important;
+}
+
+.monaco-editor .monaco-editor-overlaymessage {
+  z-index: 9999 !important;
+}
+
+.monaco-editor .monaco-editor-hover {
+  z-index: 9999 !important;
+}
+
+/* Additional Monaco Editor overlay elements */
+.monaco-editor .monaco-editor-overlaymessage,
+.monaco-editor .monaco-editor-hover,
+.monaco-editor .monaco-hover,
+.monaco-editor .monaco-suggest-widget,
+.monaco-editor .monaco-editor-hover,
+.monaco-editor .monaco-editor-overlaymessage {
+  z-index: 9999 !important;
+}

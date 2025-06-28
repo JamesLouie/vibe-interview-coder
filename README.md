@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Interview Prep App
+
+A web application for practicing coding interview questions with instant code execution and AI-powered feedback.
+
+## Features
+- Browse and select LeetCode-style coding questions
+- Write and run code in an in-browser editor
+- See real-time console output and test results
+- Get detailed AI feedback on your solution, including:
+  - Time Complexity
+  - Space Complexity
+  - Correctness
+  - Code Quality
+  - Edge Cases
+  - General Thoughts
+  - Potential Improvements
+- Supports both Anthropic (Claude) and Google (Gemini) AI models for feedback
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment variables
+Create a `.env.local` file in the project root with the following (see below for details):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+# For Anthropic (Claude)
+AI_PROVIDER=anthropic
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+AI_MODE=development   # or production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# For Google (Gemini)
+# AI_PROVIDER=google
+# GOOGLE_GENERATIVE_AI_API_KEY=your_google_api_key_here
+```
 
-## Learn More
+- `AI_MODE=development` uses Claude Haiku (cheaper, faster)
+- `AI_MODE=production` uses Claude Sonnet (higher quality)
+- For Google, always uses Gemini 2.5 Flash model
 
-To learn more about Next.js, take a look at the following resources:
+### 3. Run the development server
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Usage
+- Select a question from the list
+- Write your solution in the code editor
+- Click "Run Code" to see test results and console output
+- When all test cases pass, AI feedback will be generated and displayed
 
-## Deploy on Vercel
+## Project Structure
+- `src/app/leetcode/page.tsx` — Main UI for coding questions and feedback
+- `src/utils/aiFeedback.ts` — AI feedback logic (model selection, prompt, etc.)
+- `src/utils/stripMarkdownCodeBlock.ts` — Utility to clean up markdown from AI responses
+- `src/data/questions.ts` — List of coding questions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Requirements
+- Node.js 18+
+- API key for either Anthropic or Google Generative AI
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+MIT

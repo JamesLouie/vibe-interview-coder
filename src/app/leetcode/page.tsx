@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import { stripMarkdownCodeBlock } from '@/utils/stripMarkdownCodeBlock';
 import { questions, Question } from '@/data/questions';
 import CodeEditor from '@/components/CodeEditor';
 import ConsoleOutput from '@/components/ConsoleOutput';
@@ -227,23 +229,32 @@ export default function LeetCodePage() {
                 {/* Success Window */}
                 {executionResult && executionResult.success && executionResult.testResults && executionResult.testResults.every(r => r.passed) && selectedQuestion && (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
-                    <h3 className="text-xl font-bold text-green-800 mb-2">🎉 All test cases passed!</h3>
-                    <div className="mb-2">
-                      <span className="font-semibold">Time Complexity:</span> {selectedQuestion.timeComplexity}
-                    </div>
-                    <div className="mb-4">
-                      <span className="font-semibold">Interviewer Tips:</span>
-                      <ul className="list-disc list-inside mt-1 text-green-900">
-                        {selectedQuestion.interviewerTips.map((tip, idx) => (
-                          <li key={idx}>{tip}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="mb-2">
+                    <h3 className="text-xl font-bold text-green-800 mb-4">🎉 All test cases passed!</h3>
+                    <div>
                       <span className="font-semibold">AI Feedback:</span>
                       {aiLoading && <div className="text-green-700">Loading AI feedback...</div>}
                       {aiError && <div className="text-red-700">{aiError}</div>}
-                      {aiFeedback && <div className="bg-white border border-green-200 rounded p-3 mt-2 text-green-900 whitespace-pre-line">{aiFeedback}</div>}
+                      {aiFeedback && (
+                        <div className="bg-white border border-green-200 rounded p-4 mt-2 text-green-900">
+                          <ReactMarkdown 
+                            components={{
+                              h1: ({children}) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                              h2: ({children}) => <h2 className="text-base font-bold mb-2">{children}</h2>,
+                              h3: ({children}) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
+                              p: ({children}) => <p className="mb-2">{children}</p>,
+                              ul: ({children}) => <ul className="list-disc list-inside mb-2">{children}</ul>,
+                              ol: ({children}) => <ol className="list-decimal list-inside mb-2">{children}</ol>,
+                              li: ({children}) => <li className="mb-1">{children}</li>,
+                              code: ({children}) => <code className="bg-gray-100 px-1 py-0.5 rounded text-sm">{children}</code>,
+                              pre: ({children}) => <pre className="bg-gray-100 p-2 rounded mb-2 overflow-x-auto">{children}</pre>,
+                              strong: ({children}) => <strong className="font-semibold">{children}</strong>,
+                              em: ({children}) => <em className="italic">{children}</em>,
+                            }}
+                          >
+                            {stripMarkdownCodeBlock(aiFeedback)}
+                          </ReactMarkdown>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

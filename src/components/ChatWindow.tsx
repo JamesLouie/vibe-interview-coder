@@ -28,7 +28,20 @@ export default function ChatWindow({ onClose, focusInput }: ChatWindowProps) {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [includeContext, setIncludeContext] = useState(true);
+  const [includeContext, setIncludeContext] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chatIncludeContext');
+      return saved !== null ? JSON.parse(saved) : true;
+    }
+    return true;
+  });
+  const [hintsOnly, setHintsOnly] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('chatHintsOnly');
+      return saved !== null ? JSON.parse(saved) : false;
+    }
+    return false;
+  });
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 560, height: 700 });
@@ -36,6 +49,16 @@ export default function ChatWindow({ onClose, focusInput }: ChatWindowProps) {
   const windowRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Save includeContext preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('chatIncludeContext', JSON.stringify(includeContext));
+  }, [includeContext]);
+
+  // Save hintsOnly preference to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('chatHintsOnly', JSON.stringify(hintsOnly));
+  }, [hintsOnly]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -95,6 +118,7 @@ export default function ChatWindow({ onClose, focusInput }: ChatWindowProps) {
     try {
       const context = includeContext && problemContext ? {
         page: window.location.pathname,
+        hintsOnly,
         problem: {
           title: problemContext.title,
           description: problemContext.description,
@@ -102,7 +126,10 @@ export default function ChatWindow({ onClose, focusInput }: ChatWindowProps) {
           code: problemContext.code,
           testResults: problemContext.testResults
         }
-      } : { page: window.location.pathname };
+      } : { 
+        page: window.location.pathname,
+        hintsOnly
+      };
 
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -264,15 +291,26 @@ export default function ChatWindow({ onClose, focusInput }: ChatWindowProps) {
 
       {/* Context Toggle */}
       <div className="px-4 py-2 border-t border-gray-200 bg-gray-50">
-        <label className="flex items-center space-x-2 text-sm text-gray-600">
-          <input
-            type="checkbox"
-            checked={includeContext}
-            onChange={(e) => setIncludeContext(e.target.checked)}
-            className="rounded"
-          />
-          <span>Include problem context & code</span>
-        </label>
+        <div className="flex space-x-4">
+          <label className="flex items-center space-x-2 text-sm text-gray-600">
+            <input
+              type="checkbox"
+              checked={includeContext}
+              onChange={(e) => setIncludeContext(e.target.checked)}
+              className="rounded"
+            />
+            <span>Include problem context & code</span>
+          </label>
+          <label className="flex items-center space-x-2 text-sm text-gray-600">
+            <input
+              type="checkbox"
+              checked={hintsOnly}
+              onChange={(e) => setHintsOnly(e.target.checked)}
+              className="rounded"
+            />
+            <span>Hints only (no direct answers)</span>
+          </label>
+        </div>
       </div>
 
       {/* Input */}

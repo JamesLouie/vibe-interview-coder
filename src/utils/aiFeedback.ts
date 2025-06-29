@@ -24,6 +24,11 @@ export interface AIGenerateResponse {
   text: string;
   provider: 'anthropic' | 'google';
   model: string;
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
 }
 
 export interface AIFeedbackRequest {
@@ -108,26 +113,60 @@ export async function generateAIText(request: AIGenerateRequest): Promise<AIGene
     throw new Error('Invalid AI provider configuration.');
   }
 
-  const { text } = await generateText({
+  const { text, usage } = await generateText({
     model,
     system,
     prompt,
-    maxTokens: maxTokens || (provider === 'google' ? 4096 : 1024),
+    maxTokens: maxTokens || (provider === 'google' ? 8000 : 1024),
     temperature,
     // Always include thinkingConfig for Google
     providerOptions: provider === 'google' ? {
       google: {
         thinkingConfig: {
-          thinkingBudget: 4096,
+          thinkingBudget: 2500,
         },
       } satisfies GoogleGenerativeAIProviderOptions,
     } : undefined,
   });
 
+  console.log(usage);
+
+  // Check for empty response and retry if needed
+  if (!text || text.trim().length === 0) {
+    console.warn('AI returned empty response, retrying with lower thinking budget...');
+    
+    const retryResult = await generateText({
+      model,
+      system,
+      prompt,
+      maxTokens: maxTokens || (provider === 'google' ? 4096 : 1024),
+      temperature,
+      providerOptions: provider === 'google' ? {
+        google: {
+          thinkingConfig: {
+            thinkingBudget: 1024,
+          },
+        } satisfies GoogleGenerativeAIProviderOptions,
+      } : undefined,
+    });
+    
+    if (!retryResult.text || retryResult.text.trim().length === 0) {
+      throw new Error('AI returned empty response after retry');
+    }
+    
+    return { 
+      text: retryResult.text, 
+      provider, 
+      model: modelName,
+      usage: retryResult.usage
+    };
+  }
+
   return { 
     text, 
     provider, 
-    model: modelName 
+    model: modelName,
+    usage
   };
 }
 
@@ -192,7 +231,7 @@ export async function generateChatResponse(
   context?: { problem?: ProblemContext }, 
 ): Promise<AIGenerateResponse> {
   // Build the system prompt based on context
-  let systemPrompt = `You are a helpful coding assistant specializing in algorithms, data structures, and programming problems. You provide clear, practical advice and explanations. Always respond in a helpful, conversational tone.`;
+  let systemPrompt = `You are a helpful coding assistant specializing in algorithms, data structures, and programming problems. You provide clear, practical advice and explanations. Always respond in a helpful, conversational tone. Keep your responses concise and to the point.`;
 
   if (context?.problem) {
     const { problem } = context;

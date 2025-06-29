@@ -1,4 +1,6 @@
 import "./globals.css";
+import { ChatProvider } from "@/contexts/ChatContext";
+import ChatHotkeyProvider from "@/components/ChatHotkeyProvider";
 
 export const metadata = {
   title: "Minimal Next App",
@@ -12,7 +14,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <ChatProvider>
+          {children}
+          <ChatHotkeyProvider />
+        </ChatProvider>
+      </body>
     </html>
   );
 }

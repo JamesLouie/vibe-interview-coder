@@ -3,7 +3,7 @@
 A web application for practicing coding interview questions with instant code execution and AI-powered feedback.
 
 ## Features
-- Browse and select LeetCode-style coding questions
+- Browse and select Interview-style coding questions
 - Write and run code in an in-browser editor
 - See real-time console output and test results
 - Get detailed AI feedback on your solution, including:
@@ -55,7 +55,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - When all test cases pass, AI feedback will be generated and displayed
 
 ## Project Structure
-- `src/app/leetcode/page.tsx` — Main UI for coding questions and feedback
+- `src/app/interview/page.tsx` — Main UI for coding questions and feedback
 - `src/utils/aiFeedback.ts` — AI feedback logic (model selection, prompt, etc.)
 - `src/utils/stripMarkdownCodeBlock.ts` — Utility to clean up markdown from AI responses
 - `src/data/questions.ts` — List of coding questions
